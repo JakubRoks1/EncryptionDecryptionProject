@@ -1,26 +1,33 @@
-import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+        String mode = "enc";
+        int key = 0;
+        String data = "";
 
-        String operation = scanner.nextLine();
-
-        String text = scanner.nextLine();
-
-        int key = scanner.nextInt();
-
-        if ("enc".equals(operation)) {
-            String encryptedText = encryption(text, key);
-            System.out.println(encryptedText);
-        } else if ("dec".equals(operation)) {
-            String decryptedText = decryption(text, key);
-            System.out.println(decryptedText);
-        } else {
-            System.out.println("Unknown operation. Please enter 'enc' or 'dec'.");
+        for (int i = 0; i < args.length; i += 2) {
+            switch (args[i]) {
+                case "-mode":
+                    mode = args[i + 1];
+                    break;
+                case "-key":
+                    key = Integer.parseInt(args[i + 1]);
+                    break;
+                case "-data":
+                    data = args[i + 1];
+                    break;
+            }
         }
 
-        scanner.close();
+        String result = "";
+
+        if ("enc".equals(mode)) {
+            result = encryption(data, key);
+        } else if ("dec".equals(mode)) {
+            result = decryption(data, key);
+        }
+
+        System.out.println(result);
     }
 
     private static String encryption(String input, int key) {
