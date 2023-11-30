@@ -1,7 +1,6 @@
-
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 
 public class Main {
     public static void main(String[] args) {
@@ -10,6 +9,7 @@ public class Main {
         String data = "";
         String inputFile = "";
         String outputFile = "";
+        String algorithm = "shift"; // Default algorithm is shift
 
         for (int i = 0; i < args.length; i += 2) {
             switch (args[i]) {
@@ -28,6 +28,9 @@ public class Main {
                 case "-out":
                     outputFile = args[i + 1];
                     break;
+                case "-alg":
+                    algorithm = args[i + 1].toLowerCase();
+                    break;
             }
         }
 
@@ -42,13 +45,25 @@ public class Main {
 
         String result = "";
 
-        if ("enc".equals(mode)) {
-            result = encryption(data, key);
-        } else if ("dec".equals(mode)) {
-            result = decryption(data, key);
+        switch (algorithm) {
+            case "shift":
+                if ("enc".equals(mode)) {
+                    result = shiftAlgorithm(data, key);
+                } else if ("dec".equals(mode)) {
+                    result = shiftAlgorithm(data, -key);
+                }
+                break;
+            case "unicode":
+                if ("enc".equals(mode)) {
+                    result = unicodeAlgorithm(data, key);
+                } else if ("dec".equals(mode)) {
+                    result = unicodeAlgorithm(data, -key);
+                }
+                break;
+            default:
+                System.out.println("Error: Invalid algorithm.");
+                System.exit(1);
         }
-
-        System.out.println(result);
 
         if (!outputFile.isEmpty()) {
             try {
@@ -62,8 +77,7 @@ public class Main {
         }
     }
 
-
-    private static String encryption(String input, int key) {
+    private static String shiftAlgorithm(String input, int key) {
         StringBuilder result = new StringBuilder();
 
         for (char c : input.toCharArray()) {
@@ -73,21 +87,21 @@ public class Main {
         return result.toString();
     }
 
-    private static String decryption(String input, int key) {
+    private static String unicodeAlgorithm(String input, int key) {
         StringBuilder result = new StringBuilder();
 
         for (char c : input.toCharArray()) {
-            result.append(decryptChar(c, key));
+            result.append((char) (c + key));
         }
 
         return result.toString();
     }
 
     private static char encryptChar(char c, int key) {
-        return (char) (c + key);
-    }
-
-    private static char decryptChar(char c, int key) {
-        return (char) (c - key);
+        if (Character.isLetter(c)) {
+            int base = Character.isLowerCase(c) ? 'a' : 'A';
+            return (char) (((c - base + key) % 26 + 26) % 26 + base);
+        }
+        return c;
     }
 }
