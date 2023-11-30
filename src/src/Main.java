@@ -1,9 +1,15 @@
 
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 public class Main {
     public static void main(String[] args) {
         String mode = "enc";
         int key = 0;
         String data = "";
+        String inputFile = "";
+        String outputFile = "";
 
         for (int i = 0; i < args.length; i += 2) {
             switch (args[i]) {
@@ -16,6 +22,21 @@ public class Main {
                 case "-data":
                     data = args[i + 1];
                     break;
+                case "-in":
+                    inputFile = args[i + 1];
+                    break;
+                case "-out":
+                    outputFile = args[i + 1];
+                    break;
+            }
+        }
+
+        if (!inputFile.isEmpty()) {
+            try {
+                data = new String(Files.readAllBytes(Paths.get(inputFile)), StandardCharsets.UTF_8);
+            } catch (Exception e) {
+                System.out.println("Error: Unable to read input file.");
+                System.exit(1);
             }
         }
 
@@ -28,7 +49,19 @@ public class Main {
         }
 
         System.out.println(result);
+
+        if (!outputFile.isEmpty()) {
+            try {
+                Files.write(Paths.get(outputFile), result.getBytes(StandardCharsets.UTF_8));
+            } catch (Exception e) {
+                System.out.println("Error: Unable to write to output file.");
+                System.exit(1);
+            }
+        } else {
+            System.out.println(result);
+        }
     }
+
 
     private static String encryption(String input, int key) {
         StringBuilder result = new StringBuilder();
